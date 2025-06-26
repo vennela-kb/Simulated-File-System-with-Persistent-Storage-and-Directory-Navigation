@@ -1,153 +1,158 @@
 # Custom File System
 
-A custom file system implementation that simulates how files and directories are stored, organized, and accessed on a disk. This project demonstrates core file system concepts including file operations, directory structure, metadata management, and block allocation.
+A custom in-memory, block-based file system simulator written in Python. This project demonstrates how files and directories are stored, organized, and accessed on a disk, covering core concepts including file operations, directory structure, metadata management, and block allocation.
 
-## Features
+---
+
+## 🚀 Project Overview
+
+This prototype implements:
 
 - **File Operations**
   - Create files with content
   - Read file contents
   - Delete files
   - File metadata tracking (size, creation time, modification time)
-
 - **Directory Structure**
   - Hierarchical directory organization
   - Support for absolute and relative paths
-  - Directory navigation (cd, mkdir, ls, pwd)
-
+  - Directory navigation commands (`cd`, `mkdir`, `ls`, `pwd`)
 - **Block Management**
   - Bitmap-based block allocation
-  - Support for files spanning multiple blocks
-  - Efficient space management
-
+  - Support for files spanning multiple 512-byte blocks
+  - Efficient space management and deallocation
 - **Persistence**
-  - File system state is saved between sessions
-  - Metadata is stored in a separate file
-  - Automatic loading of previous state
+  - File system state saved between sessions
+  - Metadata stored in `fs_metadata.pkl`
+  - Virtual disk image in `disk.img` persists data
 
-## Project Structure
+---
+
+## 🧩 Repository Structure
 
 ```
 CustomFileSystem/
-├── main.py          # Entry point and initialization
-├── disk.py          # Virtual disk implementation
-├── filesystem.py    # Core file system functionality
-├── directory.py     # Directory structure implementation
-├── bitmap.py        # Block allocation management
-├── shell.py         # Command-line interface
-├── disk.img         # Virtual disk image
-└── fs_metadata.pkl  # File system metadata
+├── main.py          # Entry point: initializes Disk, FileSystem, and starts the shell
+├── disk.py          # Virtual disk implementation (read/write 512 B blocks)
+├── filesystem.py    # Core FS functionality: file/dir ops, metadata, persistence
+├── directory.py     # Directory tree implementation and path resolution
+├── bitmap.py        # Block allocation management via a bitmap
+├── shell.py         # Interactive command-line interface
+├── disk.img         # Virtual disk image file (auto-generated)
+├── fs_metadata.pkl  # Persisted file system metadata (auto-generated)
+├── PROTOTYPE.md     # Quickstart guide and design notes
+├── Write-Up.docx    # Detailed explanation of design choices and data structures
+└── README.md        # This file
 ```
 
-## Getting Started
+---
 
-1. **Prerequisites**
-   - Python 3.x
-   - No external dependencies required
+## 🔧 Prerequisites
 
-2. **Running the File System**
+- **Python 3.7+**  
+- No external dependencies beyond the Python standard library.
+
+---
+
+## 🛠️ Installation & Setup
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/your-username/CustomFileSystem.git
+   cd CustomFileSystem
+   ```
+
+2. **Run the file system**  
    ```bash
    python main.py
    ```
+   This creates `disk.img` and `fs_metadata.pkl` on first run and starts the shell prompt:
+   ```
+   /> 
+   ```
 
-3. **Available Commands**
-   - `mkdir <dirname>`: Create a new directory
-   - `cd <dirname>`: Change directory (supports absolute and relative paths)
-   - `ls [path]`: List contents of current or specified directory
-   - `pwd`: Print current working directory
-   - `create <filename>`: Create a new file
-   - `read <filename>`: Read file contents
-   - `delete <filename>`: Delete a file
-   - `clear`: Clear the screen
-   - `help`: Show available commands
-   - `exit`: Exit the program
+---
 
-## Technical Details
+## 📚 Shell Commands
+
+| Command             | Description                                             |
+|---------------------|---------------------------------------------------------|
+| `help`              | Show available commands.                                |
+| `mkdir <dirname>`   | Create a new directory in the current directory.        |
+| `cd <path>`         | Change directory (absolute or relative paths).          |
+| `ls [path]`         | List contents of current or specified directory.        |
+| `pwd`               | Print the current working directory path.               |
+| `create <filename>` | Create a new file; prompts for content input.           |
+| `read <filename>`   | Display the contents of a file.                         |
+| `delete <name>`     | Delete a file or empty directory.                       |
+| `clear`             | Clear the terminal screen.                              |
+| `exit`              | Persist state and exit the shell.                       |
+
+---
+
+## 🔍 Technical Details
 
 ### File System Design
 
-- **Block Size**: 512 bytes
-- **Disk Size**: 1MB (configurable)
-- **Block Allocation**: Bitmap-based
-- **Directory Structure**: Tree-based with parent-child relationships
-- **Metadata Storage**: Separate pickle file for persistence
+- **Block Size**: 512 bytes  
+- **Disk Size**: 1 MB (2048 blocks)  
+- **Block Allocation**: Bitmap-based tracking of free/used blocks  
+- **Directory Structure**: Tree-based with parent-child relationships  
+- **Metadata Storage**: Pickled directory tree and free-block bitmap in `fs_metadata.pkl`
 
-### Key Components
+### Components
 
-1. **Disk Layer**
-   - Simulates physical disk operations
-   - Handles block-level read/write operations
-   - Manages disk image file
+1. **Disk Layer (`disk.py`)**  
+   - Manages `disk.img` file  
+   - Provides `read_block(block_num)` and `write_block(block_num, data)`  
 
-2. **File System Core**
-   - Manages file and directory operations
-   - Handles block allocation
-   - Maintains file system state
+2. **Bitmap (`bitmap.py`)**  
+   - Tracks block allocation via a list of bits  
+   - `allocate_block()` and `deallocate_block(block_num)` operations  
 
-3. **Directory Structure**
-   - Supports hierarchical organization
-   - Implements path resolution
-   - Manages file and directory entries
+3. **Directory (`directory.py`)**  
+   - Represents directories with `name`, `parent`, and `entries`  
+   - Resolves absolute and relative paths without circular references  
 
-4. **Block Allocation**
-   - Uses bitmap for tracking free blocks
-   - Supports dynamic block allocation
-   - Handles block deallocation
+4. **FileSystem Core (`filesystem.py`)**  
+   - Implements `create_file`, `read_file`, `delete_file`, `mkdir`, `ls`, `cd`  
+   - Manages metadata and persistence (`save_metadata`, `load_metadata`)  
 
-## Deliverables
+5. **Shell Interface (`shell.py`)**  
+   - Provides an interactive prompt  
+   - Parses and dispatches commands to `FileSystem` methods  
 
-The project consists of three main deliverables:
+---
 
-1. **Write-up Documentation**
-   - Detailed explanation of file system functionality
-   - Description of underlying data structures
-   - Justification for chosen structures
-   - Comparison with other file systems
-   - Advantages and improvements over existing systems
+## 🎯 Deliverables & Milestones
 
-2. **Implementation Package**
-   - Core file system implementation
-   - Disk driver (disk.py)
-   - Command-line shell interface
-   - Complete source code
-   - Documentation on system functionality
-   - User guide and setup instructions
+1. **Write-up Documentation (`Write-Up.docx`)**  
+   - Detailed explanation of data structures and algorithms  
+   - Comparisons with real-world file systems  
+   - Design rationale and improvement suggestions  
 
-3. **Presentation**
-   - Summary of write-up content
-   - Live demonstration of prototype
-   - Technical overview
-   - System capabilities showcase
-   - Q&A session
+2. **Prototype Implementation**  
+   - Core source code modules (`*.py`)  
+   - Quickstart guide (`PROTOTYPE.md`)  
+   - Virtual disk (`disk.img`) and metadata (`fs_metadata.pkl`)  
 
-### Milestone Deliverables
+3. **Final Presentation**  
+   - Summary of design and functionality  
+   - Live demonstration of shell commands  
+   - Architecture overview and Q&A  
 
-The project will be developed through several milestones, each with specific deliverables:
+---
 
-1. **Design Phase**
-   - File system architecture design
-   - Data structure specifications
-   - Block allocation strategy
-   - Directory structure design
-   - Initial documentation
+## 🚀 Next Steps
 
-2. **Core Implementation**
-   - Basic file operations
-   - Directory management
-   - Block allocation system
-   - Initial shell interface
-   - Progress documentation
+- **Permissions & ACLs**: Add user/group access controls  
+- **Journaling**: Implement crash-safe metadata journaling  
+- **Performance**: Optimize block search with free-block queues  
+- **Advanced Metadata**: Support extended attributes and links  
 
-3. **Advanced Features**
-   - Persistence implementation
-   - Error handling
-   - Advanced file operations
-   - Shell improvements
-   - Updated documentation
+---
 
-4. **Final Package**
-   - Complete implementation
-   - Final documentation
-   - Presentation materials
-   - User guide
-   - Source code with comments
+## 📬 Contact & Contributions
+
+Contributions and feedback are welcome!  
+Open an issue or submit a pull request, or contact **kothakonda.baby@gmail.com**.
